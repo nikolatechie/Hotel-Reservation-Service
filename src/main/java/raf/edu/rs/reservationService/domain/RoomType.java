@@ -9,8 +9,7 @@ public class RoomType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne()
-    @JoinColumn(name = "hotel_id")
+    @ManyToOne
     private Hotel hotel;
 
     private String type;

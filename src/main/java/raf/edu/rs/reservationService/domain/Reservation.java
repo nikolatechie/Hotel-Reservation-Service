@@ -1,6 +1,7 @@
 package raf.edu.rs.reservationService.domain;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table
@@ -14,4 +15,7 @@ public class Reservation {
 
     @ManyToOne
     private RoomType roomType;
+
+    private LocalDate startDate;
+    private LocalDate endDate;
 }
