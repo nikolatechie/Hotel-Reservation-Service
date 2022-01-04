@@ -9,12 +9,19 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private Hotel hotel;
-
+    private Long hotelId;
     private Integer roomNumber;
     private String type;
     private Double pricePerDay;
+
+    public Room(Long hotelId, Integer roomNumber, String type, Double pricePerDay) {
+        this.hotelId = hotelId;
+        this.roomNumber = roomNumber;
+        this.type = type;
+        this.pricePerDay = pricePerDay;
+    }
+
+    public Room() {}
 
     public Long getId() {
         return id;
@@ -24,12 +31,12 @@ public class Room {
         this.id = id;
     }
 
-    public Hotel getHotel() {
-        return hotel;
+    public Long getHotelId() {
+        return hotelId;
     }
 
-    public void setHotel(Hotel hotel) {
-        this.hotel = hotel;
+    public void setHotelId(Long hotelId) {
+        this.hotelId = hotelId;
     }
 
     public Integer getRoomNumber() {

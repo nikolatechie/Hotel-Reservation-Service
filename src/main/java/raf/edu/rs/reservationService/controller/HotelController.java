@@ -17,8 +17,8 @@ public class HotelController {
     }
 
     @GetMapping
-    public List<Hotel> getAllHotels() {
-        return hotelService.findAll();
+    public ResponseEntity<List<Hotel>> getAllHotels() {
+        return new ResponseEntity<>(hotelService.findAll(), HttpStatus.OK);
     }
 
     @PostMapping
@@ -28,12 +28,12 @@ public class HotelController {
 
     @PutMapping(path = "/{id}")
     public ResponseEntity<Hotel> updateHotel(@PathVariable Long id, @RequestBody Hotel newHotel) {
-        return new ResponseEntity<>(hotelService.update(id, newHotel), HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(hotelService.update(id, newHotel), HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<?> deleteHotel(@PathVariable Long id) {
         hotelService.delete(id);
-        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
