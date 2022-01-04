@@ -24,7 +24,7 @@ public class RoomController {
 
     @PostMapping
     public ResponseEntity<Room> save(@RequestBody Room newRoom) {
-        return new ResponseEntity<>(roomService.save(newRoom), HttpStatus.OK);
+        return new ResponseEntity<>(roomService.save(newRoom), HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/{id}")

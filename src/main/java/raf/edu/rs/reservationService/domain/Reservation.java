@@ -10,14 +10,19 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private Hotel hotel;
-
-    @ManyToOne
-    private Room room;
-
+    private Long hotelId;
+    private Long roomId;
     private LocalDate startDate;
     private LocalDate endDate;
+
+    public Reservation(Long hotelId, Long roomId, LocalDate startDate, LocalDate endDate) {
+        this.hotelId = hotelId;
+        this.roomId = roomId;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
+    public Reservation() {}
 
     public Long getId() {
         return id;
@@ -27,20 +32,20 @@ public class Reservation {
         this.id = id;
     }
 
-    public Hotel getHotel() {
-        return hotel;
+    public Long getHotelId() {
+        return hotelId;
     }
 
-    public void setHotel(Hotel hotel) {
-        this.hotel = hotel;
+    public void setHotelId(Long hotelId) {
+        this.hotelId = hotelId;
     }
 
-    public Room getRoom() {
-        return room;
+    public Long getRoomId() {
+        return roomId;
     }
 
-    public void setRoom(Room room) {
-        this.room = room;
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
     }
 
     public LocalDate getStartDate() {
