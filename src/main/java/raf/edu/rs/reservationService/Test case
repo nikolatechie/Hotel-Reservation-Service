@@ -3,7 +3,7 @@ DODAVANJE HOTELA
 {
     "city": "London",
     "name": "King's Cross",
-    "description": "Best hotel in London reserved for Nikola during internship at Meta in 2022.",
+    "description": "Best hotel in the centre of London",
     "numberOfRooms": 62
 }
 
