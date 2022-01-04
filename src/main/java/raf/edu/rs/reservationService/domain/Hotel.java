@@ -14,12 +14,29 @@ public class Hotel {
     private String description;
     private Integer numberOfRooms;
 
+    public Hotel(String city, String name, String description, Integer numberOfRooms) {
+        this.city = city;
+        this.name = name;
+        this.description = description;
+        this.numberOfRooms = numberOfRooms;
+    }
+
+    public Hotel() {}
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public String getName() {
