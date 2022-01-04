@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import raf.edu.rs.reservationService.domain.Reservation;
 import raf.edu.rs.reservationService.service.ReservationService;
-
 import java.util.List;
 
 @RestController
