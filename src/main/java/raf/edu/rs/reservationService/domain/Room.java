@@ -27,10 +27,6 @@ public class Room {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Long getHotelId() {
         return hotelId;
     }

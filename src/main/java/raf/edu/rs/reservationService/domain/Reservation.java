@@ -1,5 +1,7 @@
 package raf.edu.rs.reservationService.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 
@@ -12,7 +14,11 @@ public class Reservation {
 
     private Long hotelId;
     private Long roomId;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
     public Reservation(Long hotelId, Long roomId, LocalDate startDate, LocalDate endDate) {
@@ -26,10 +32,6 @@ public class Reservation {
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Long getHotelId() {
