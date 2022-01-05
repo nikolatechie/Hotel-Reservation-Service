@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import raf.edu.rs.reservationService.domain.Hotel;
 import raf.edu.rs.reservationService.domain.Review;
 import raf.edu.rs.reservationService.service.ReviewService;
+
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -22,18 +24,26 @@ public class ReviewController {
         return new ResponseEntity<>(reviewService.getTopRatedHotels(), HttpStatus.OK);
     }
 
-    @PutMapping
+    @PostMapping
     public ResponseEntity<Review> addNewReview(@RequestBody Review review) {
         return new ResponseEntity<>(reviewService.save(review), HttpStatus.CREATED);
     }
 
-    @GetMapping(path = "/all")
-    public ResponseEntity<List<Review>> getAllReviews(
-            @RequestParam(value = "hotelName") String hotelName,
-            @RequestParam(value = "city") String city) {
-        // ?
+    @PutMapping
+    public ResponseEntity<Review> updateReview(@RequestBody @NotNull Long id, @RequestBody @NotNull Review review) {
+        return new ResponseEntity<>(reviewService.update(id, review), HttpStatus.OK);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Review> deleteReview(@RequestBody Long id) {
+        reviewService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // TODO: i ostale operacije...
+    @GetMapping(path = "/all")
+    public ResponseEntity<List<Review>> getAllReviews(
+            @RequestParam(required = false, value = "hotelName") String hotelName,
+            @RequestParam(required = false, value = "city") String city) {
+        return new ResponseEntity<>(reviewService.listReviews(hotelName, city), HttpStatus.OK);
+    }
 }

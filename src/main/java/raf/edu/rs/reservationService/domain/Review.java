@@ -1,6 +1,9 @@
 package raf.edu.rs.reservationService.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table
@@ -9,7 +12,12 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     private Long reservationId;
+
+    @Min(1)
+    @Max(5)
+    @NotNull
     private Integer rating;
     private String comment;
 
