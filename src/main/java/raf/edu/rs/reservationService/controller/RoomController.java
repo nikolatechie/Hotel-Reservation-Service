@@ -1,17 +1,16 @@
 package raf.edu.rs.reservationService.controller;
 
-import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import raf.edu.rs.reservationService.domain.Room;
+import raf.edu.rs.reservationService.security.CheckSecurity;
 import raf.edu.rs.reservationService.service.RoomService;
-
 import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/api/room")
+@RequestMapping(path = "/room")
 public class RoomController {
     private RoomService roomService;
 
@@ -25,16 +24,19 @@ public class RoomController {
     }
 
     @PostMapping
+    @CheckSecurity(roles = {"ROLE_MANAGER"})
     public ResponseEntity<Room> save(@RequestBody Room newRoom) {
         return new ResponseEntity<>(roomService.save(newRoom), HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/{id}")
+    @CheckSecurity(roles = {"ROLE_MANAGER"})
     public ResponseEntity<Room> update(@PathVariable Long id, @RequestBody Room newRoom) {
         return new ResponseEntity<>(roomService.update(id, newRoom), HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/{id}")
+    @CheckSecurity(roles = {"ROLE_MANAGER"})
     public ResponseEntity<?> delete(@PathVariable Long id) {
         roomService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);

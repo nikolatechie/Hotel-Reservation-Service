@@ -5,13 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import raf.edu.rs.reservationService.domain.Hotel;
 import raf.edu.rs.reservationService.domain.Review;
+import raf.edu.rs.reservationService.security.CheckSecurity;
 import raf.edu.rs.reservationService.service.ReviewService;
-
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/review")
+@RequestMapping("/review")
 public class ReviewController {
     private ReviewService reviewService;
 
@@ -25,16 +25,19 @@ public class ReviewController {
     }
 
     @PostMapping
+    @CheckSecurity(roles = {"ROLE_CLIENT"})
     public ResponseEntity<Review> addNewReview(@RequestBody Review review) {
         return new ResponseEntity<>(reviewService.save(review), HttpStatus.CREATED);
     }
 
     @PutMapping
+    @CheckSecurity(roles = {"ROLE_CLIENT"})
     public ResponseEntity<Review> updateReview(@RequestBody @NotNull Long id, @RequestBody @NotNull Review review) {
         return new ResponseEntity<>(reviewService.update(id, review), HttpStatus.OK);
     }
 
     @DeleteMapping
+    @CheckSecurity(roles = {"ROLE_CLIENT"})
     public ResponseEntity<Review> deleteReview(@RequestBody Long id) {
         reviewService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);

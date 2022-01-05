@@ -16,8 +16,6 @@ import raf.edu.rs.reservationService.messageHelper.MessageHelper;
 import raf.edu.rs.reservationService.repository.HotelRepository;
 import raf.edu.rs.reservationService.repository.ReservationRepository;
 import raf.edu.rs.reservationService.repository.RoomRepository;
-
-import java.math.BigDecimal;
 import java.time.Period;
 import java.util.List;
 
