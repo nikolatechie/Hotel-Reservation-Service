@@ -1,10 +1,14 @@
 package raf.edu.rs.reservationService.service;
 
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
+import raf.edu.rs.reservationService.domain.Hotel;
 import raf.edu.rs.reservationService.domain.Reservation;
 import raf.edu.rs.reservationService.domain.Room;
+import raf.edu.rs.reservationService.dto.MessageDto;
 import raf.edu.rs.reservationService.exceptions.InsertException;
 import raf.edu.rs.reservationService.exceptions.NotFoundException;
+import raf.edu.rs.reservationService.messageHelper.MessageHelper;
 import raf.edu.rs.reservationService.repository.HotelRepository;
 import raf.edu.rs.reservationService.repository.ReservationRepository;
 import raf.edu.rs.reservationService.repository.RoomRepository;
@@ -14,10 +18,17 @@ import java.util.List;
 public class ReservationService {
     private ReservationRepository reservationRepository;
     private RoomRepository roomRepository;
+    private HotelRepository hotelRepository;
+    private JmsTemplate jmsTemplate;
+    private MessageHelper messageHelper;
 
-    public ReservationService(ReservationRepository reservationRepository, RoomRepository roomRepository) {
+    public ReservationService(ReservationRepository reservationRepository, RoomRepository roomRepository,
+                              HotelRepository hotelRepository, JmsTemplate jmsTemplate, MessageHelper messageHelper) {
         this.reservationRepository = reservationRepository;
         this.roomRepository = roomRepository;
+        this.hotelRepository = hotelRepository;
+        this.jmsTemplate = jmsTemplate;
+        this.messageHelper = messageHelper;
     }
 
     public List<Reservation> findAll() {
@@ -38,6 +49,7 @@ public class ReservationService {
             }
         }
 
+        sendEmail("new reservation", reservation);
         return reservationRepository.save(reservation);
     }
 
@@ -70,5 +82,14 @@ public class ReservationService {
         }
 
         return false;
+    }
+
+    private void sendEmail(String emailType, Reservation reservation) {
+        Hotel hotel = hotelRepository.getById(reservation.getHotelId());
+        MessageDto msg = new MessageDto(emailType, "IME", "PREZIME", "ngrujic2419rn@raf.rs", hotel.getName(),
+                "LINK", reservation.getId());
+
+        String str = messageHelper.createTextMessage(msg);
+        jmsTemplate.convertAndSend("ngrujic2419rn@raf.rs", str); // za test
     }
 }
