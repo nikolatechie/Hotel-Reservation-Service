@@ -11,6 +11,7 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long userId;
     private Long hotelId;
     private Long roomId;
 
@@ -20,17 +21,29 @@ public class Reservation {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
-    public Reservation(Long hotelId, Long roomId, LocalDate startDate, LocalDate endDate) {
+    private Double totalPrice;
+
+    public Reservation(Long userId, Long hotelId, Long roomId, LocalDate startDate, LocalDate endDate, Double price) {
+        this.userId = userId;
         this.hotelId = hotelId;
         this.roomId = roomId;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.totalPrice = price;
     }
 
     public Reservation() {}
 
     public Long getId() {
         return id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public Long getHotelId() {
@@ -63,5 +76,13 @@ public class Reservation {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
     }
 }

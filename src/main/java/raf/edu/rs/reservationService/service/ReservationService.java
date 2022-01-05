@@ -1,7 +1,11 @@
 package raf.edu.rs.reservationService.service;
 
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import raf.edu.rs.reservationService.clientUserService.dto.DiscountDto;
 import raf.edu.rs.reservationService.domain.Hotel;
 import raf.edu.rs.reservationService.domain.Reservation;
 import raf.edu.rs.reservationService.domain.Room;
@@ -12,6 +16,9 @@ import raf.edu.rs.reservationService.messageHelper.MessageHelper;
 import raf.edu.rs.reservationService.repository.HotelRepository;
 import raf.edu.rs.reservationService.repository.ReservationRepository;
 import raf.edu.rs.reservationService.repository.RoomRepository;
+
+import java.math.BigDecimal;
+import java.time.Period;
 import java.util.List;
 
 @Service
@@ -21,14 +28,17 @@ public class ReservationService {
     private HotelRepository hotelRepository;
     private JmsTemplate jmsTemplate;
     private MessageHelper messageHelper;
+    private RestTemplate userServiceRestTemplate;
 
     public ReservationService(ReservationRepository reservationRepository, RoomRepository roomRepository,
-                              HotelRepository hotelRepository, JmsTemplate jmsTemplate, MessageHelper messageHelper) {
+                              HotelRepository hotelRepository, JmsTemplate jmsTemplate, MessageHelper messageHelper,
+                              RestTemplate userServiceRestTemplate) {
         this.reservationRepository = reservationRepository;
         this.roomRepository = roomRepository;
         this.hotelRepository = hotelRepository;
         this.jmsTemplate = jmsTemplate;
         this.messageHelper = messageHelper;
+        this.userServiceRestTemplate = userServiceRestTemplate;
     }
 
     public List<Reservation> findAll() {
@@ -48,6 +58,17 @@ public class ReservationService {
                 throw new InsertException("The room is already reserved in that period!");
             }
         }
+
+        // discount
+        ResponseEntity<DiscountDto> discountResponseEntity = userServiceRestTemplate.exchange("/user/" +
+                reservation.getUserId() + "/discount", HttpMethod.GET, null, DiscountDto.class);
+
+        // calculate price
+        Room room = roomRepository.getById(reservation.getRoomId());
+        Double price = room.getPricePerDay() *
+                (Period.between(reservation.getEndDate(), reservation.getStartDate()).getDays() + 1);
+        price -= price * discountResponseEntity.getBody().getDiscount().doubleValue() / 100;
+        reservation.setTotalPrice(price);
 
         sendEmail("new reservation", reservation);
         return reservationRepository.save(reservation);
