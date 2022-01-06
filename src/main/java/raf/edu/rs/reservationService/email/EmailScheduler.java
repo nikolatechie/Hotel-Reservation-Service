@@ -26,7 +26,7 @@ public class EmailScheduler {
     }
 
     //@Scheduled(cron = "0 */10 * ? * *") // za slanje svakih 10 minuta
-    @Scheduled(fixedDelay = 8000)
+    @Scheduled(fixedDelay = 4000)
     public void sendReminderEmails() {
         List<Reservation> reservations = reservationService.findAll();
 

@@ -1,11 +1,14 @@
 package raf.edu.rs.reservationService.service;
 
+import io.github.resilience4j.retry.Retry;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import raf.edu.rs.reservationService.clientUserService.dto.DiscountDto;
+import raf.edu.rs.reservationService.configuration.RetryConfiguration;
 import raf.edu.rs.reservationService.domain.Hotel;
 import raf.edu.rs.reservationService.domain.Reservation;
 import raf.edu.rs.reservationService.domain.Room;
@@ -27,16 +30,18 @@ public class ReservationService {
     private JmsTemplate jmsTemplate;
     private MessageHelper messageHelper;
     private RestTemplate userServiceRestTemplate;
+    private Retry userServiceRetry;
 
     public ReservationService(ReservationRepository reservationRepository, RoomRepository roomRepository,
                               HotelRepository hotelRepository, JmsTemplate jmsTemplate, MessageHelper messageHelper,
-                              RestTemplate userServiceRestTemplate) {
+                              RestTemplate userServiceRestTemplate, Retry userServiceRetry) {
         this.reservationRepository = reservationRepository;
         this.roomRepository = roomRepository;
         this.hotelRepository = hotelRepository;
         this.jmsTemplate = jmsTemplate;
         this.messageHelper = messageHelper;
         this.userServiceRestTemplate = userServiceRestTemplate;
+        this.userServiceRetry = userServiceRetry;
     }
 
     public List<Reservation> findAll() {
@@ -57,9 +62,9 @@ public class ReservationService {
             }
         }
 
-        // discount
-        ResponseEntity<DiscountDto> discountResponseEntity = userServiceRestTemplate.exchange("/user/" +
-                reservation.getUserId() + "/discount", HttpMethod.GET, null, DiscountDto.class);
+        // retry pattern
+        ResponseEntity<DiscountDto> discountResponseEntity =
+                Retry.decorateSupplier(userServiceRetry, () -> getDiscount(reservation.getUserId())).get();
 
         // calculate price
         Room room = roomRepository.getById(reservation.getRoomId());
@@ -75,6 +80,19 @@ public class ReservationService {
         sendEmail("new reservation", reservation);
         reservation.setSentReminder(false);
         return reservationRepository.save(reservation);
+    }
+
+    private ResponseEntity<DiscountDto> getDiscount(Long userId) {
+        try {
+            return userServiceRestTemplate.exchange("/user/" +
+                    userId + "/discount", HttpMethod.GET, null, DiscountDto.class);
+        }
+        catch (HttpClientErrorException e) {
+            throw new NotFoundException("Discount not found!");
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Internal server error");
+        }
     }
 
     public Reservation update(Long id, Reservation newReservation, Long userId) {
