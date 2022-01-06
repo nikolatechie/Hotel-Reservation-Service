@@ -16,7 +16,6 @@ import java.util.Arrays;
 @Aspect
 @Configuration
 public class SecurityAspect {
-
     @Value("${oauth.jwt.secret}")
     private String jwtSecret;
 
@@ -31,9 +30,11 @@ public class SecurityAspect {
         //Get method signature
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();
-        //Check for authorization parameter
+
+        // Check for authorization parameter
         String token = null;
-        for (int i = 0; i < methodSignature.getParameterNames().length; i++) {
+
+        for (int i = 0; i < methodSignature.getParameterNames().length; ++i) {
             if (methodSignature.getParameterNames()[i].equals("authorization")) {
                 //Check bearer schema
                 if (joinPoint.getArgs()[i].toString().startsWith("Bearer")) {
@@ -42,24 +43,26 @@ public class SecurityAspect {
                 }
             }
         }
-        //If token is not presents return UNAUTHORIZED response
-        if (token == null) {
+
+        // If token is not presents return UNAUTHORIZED response
+        if (token == null)
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-        //Try to parse token
+
+        // Try to parse token
         Claims claims = tokenService.parseToken(token);
-        //If fails return UNAUTHORIZED response
-        if (claims == null) {
+
+        // If fails return UNAUTHORIZED response
+        if (claims == null)
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-        //Check user role and proceed if user has appropriate role for specified route
+
+        // Check user role and proceed if user has appropriate role for specified route
         CheckSecurity checkSecurity = method.getAnnotation(CheckSecurity.class);
         String role = claims.get("role", String.class);
-        if (Arrays.asList(checkSecurity.roles()).contains(role)) {
+
+        if (Arrays.asList(checkSecurity.roles()).contains(role))
             return joinPoint.proceed();
-        }
-        //Return FORBIDDEN if user has't appropriate role for specified route
+
+        // Return FORBIDDEN if user has no appropriate role for specified route
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
-
 }

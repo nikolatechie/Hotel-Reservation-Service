@@ -19,25 +19,27 @@ public class RoomController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Room>> getAllRooms() {
+    @CheckSecurity(roles = {"ROLE_CLIENT", "ROLE_MANAGER", "ROLE_ADMIN"})
+    public ResponseEntity<List<Room>> getAllRooms(@RequestHeader("Authorization") String authorization) {
         return new ResponseEntity<>(roomService.findAll(), HttpStatus.OK);
     }
 
     @PostMapping
     @CheckSecurity(roles = {"ROLE_MANAGER"})
-    public ResponseEntity<Room> save(@RequestBody Room newRoom) {
+    public ResponseEntity<Room> save(@RequestHeader("Authorization") String authorization, @RequestBody Room newRoom) {
         return new ResponseEntity<>(roomService.save(newRoom), HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/{id}")
     @CheckSecurity(roles = {"ROLE_MANAGER"})
-    public ResponseEntity<Room> update(@PathVariable Long id, @RequestBody Room newRoom) {
+    public ResponseEntity<Room> update(@RequestHeader("Authorization") String authorization,
+                                       @PathVariable Long id, @RequestBody Room newRoom) {
         return new ResponseEntity<>(roomService.update(id, newRoom), HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/{id}")
     @CheckSecurity(roles = {"ROLE_MANAGER"})
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@RequestHeader("Authorization") String authorization, @PathVariable Long id) {
         roomService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }

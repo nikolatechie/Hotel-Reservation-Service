@@ -26,19 +26,22 @@ public class ReviewController {
 
     @PostMapping
     @CheckSecurity(roles = {"ROLE_CLIENT"})
-    public ResponseEntity<Review> addNewReview(@RequestBody Review review) {
+    public ResponseEntity<Review> addNewReview(@RequestHeader("Authorization") String authorization,
+                                               @RequestBody Review review) {
         return new ResponseEntity<>(reviewService.save(review), HttpStatus.CREATED);
     }
 
     @PutMapping
     @CheckSecurity(roles = {"ROLE_CLIENT"})
-    public ResponseEntity<Review> updateReview(@RequestBody @NotNull Long id, @RequestBody @NotNull Review review) {
+    public ResponseEntity<Review> updateReview(@RequestHeader("Authorization") String authorization,
+                                               @RequestBody @NotNull Long id, @RequestBody @NotNull Review review) {
         return new ResponseEntity<>(reviewService.update(id, review), HttpStatus.OK);
     }
 
     @DeleteMapping
     @CheckSecurity(roles = {"ROLE_CLIENT"})
-    public ResponseEntity<Review> deleteReview(@RequestBody Long id) {
+    public ResponseEntity<Review> deleteReview(@RequestHeader("Authorization") String authorization,
+                                               @RequestBody Long id) {
         reviewService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }

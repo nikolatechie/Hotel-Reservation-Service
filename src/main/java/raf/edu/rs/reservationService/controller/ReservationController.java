@@ -18,25 +18,28 @@ public class ReservationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Reservation>> getAllReservations() {
+    @CheckSecurity(roles = {"ROLE_ADMIN"})
+    public ResponseEntity<List<Reservation>> getAllReservations(@RequestHeader("Authorization") String authorization) {
         return new ResponseEntity<>(reservationService.findAll(), HttpStatus.OK);
     }
 
     @PostMapping
     @CheckSecurity(roles = {"ROLE_CLIENT"})
-    public ResponseEntity<Reservation> addNewReservation(@RequestBody Reservation reservation) {
+    public ResponseEntity<Reservation> addNewReservation(@RequestHeader("Authorization") String authorization,
+                                                         @RequestBody Reservation reservation) {
         return new ResponseEntity<>(reservationService.save(reservation), HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/{id}")
     @CheckSecurity(roles = {"ROLE_CLIENT", "ROLE_MANAGER"})
-    public ResponseEntity<Reservation> update(@PathVariable Long id, @RequestBody Reservation reservation) {
+    public ResponseEntity<Reservation> update(@RequestHeader("Authorization") String authorization,
+                                              @PathVariable Long id, @RequestBody Reservation reservation) {
         return new ResponseEntity<>(reservationService.update(id, reservation), HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/{id}")
     @CheckSecurity(roles = {"ROLE_CLIENT", "ROLE_MANAGER"})
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@RequestHeader("Authorization") String authorization, @PathVariable Long id) {
         reservationService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }

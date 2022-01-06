@@ -24,19 +24,21 @@ public class HotelController {
 
     @PostMapping
     @CheckSecurity(roles = {"ROLE_MANAGER"})
-    public ResponseEntity<Hotel> addNewHotel(@RequestBody Hotel hotel) {
+    public ResponseEntity<Hotel> addNewHotel(@RequestHeader("Authorization") String authorization,
+                                             @RequestBody Hotel hotel) {
         return new ResponseEntity<>(hotelService.save(hotel), HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/{id}")
     @CheckSecurity(roles = {"ROLE_MANAGER"})
-    public ResponseEntity<Hotel> updateHotel(@PathVariable Long id, @RequestBody Hotel newHotel) {
+    public ResponseEntity<Hotel> updateHotel(@RequestHeader("Authorization") String authorization,
+                                             @PathVariable Long id, @RequestBody Hotel newHotel) {
         return new ResponseEntity<>(hotelService.update(id, newHotel), HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/{id}")
     @CheckSecurity(roles = {"ROLE_MANAGER"})
-    public ResponseEntity<?> deleteHotel(@PathVariable Long id) {
+    public ResponseEntity<?> deleteHotel(@RequestHeader("Authorization") String authorization, @PathVariable Long id) {
         hotelService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
