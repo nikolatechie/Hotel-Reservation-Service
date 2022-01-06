@@ -12,6 +12,7 @@ public class Reservation {
     private Long id;
 
     private Long userId;
+    private String userEmail;
     private Long hotelId;
     private Long roomId;
 
@@ -22,9 +23,12 @@ public class Reservation {
     private LocalDate endDate;
 
     private Double totalPrice;
+    private Boolean sentReminder;
 
-    public Reservation(Long userId, Long hotelId, Long roomId, LocalDate startDate, LocalDate endDate, Double price) {
+    public Reservation(Long userId, String userEmail, Long hotelId, Long roomId, LocalDate startDate, LocalDate endDate,
+                       Double price) {
         this.userId = userId;
+        this.userEmail = userEmail;
         this.hotelId = hotelId;
         this.roomId = roomId;
         this.startDate = startDate;
@@ -44,6 +48,14 @@ public class Reservation {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public Long getHotelId() {
@@ -84,5 +96,13 @@ public class Reservation {
 
     public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public Boolean getSentReminder() {
+        return sentReminder;
+    }
+
+    public void setSentReminder(Boolean sentReminder) {
+        this.sentReminder = sentReminder;
     }
 }

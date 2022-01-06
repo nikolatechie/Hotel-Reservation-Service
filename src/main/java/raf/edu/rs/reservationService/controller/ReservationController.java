@@ -31,6 +31,7 @@ public class ReservationController {
     public ResponseEntity<Reservation> addNewReservation(@RequestHeader("Authorization") String authorization,
                                                          @RequestBody Reservation reservation) {
         reservation.setUserId(securityAspect.getUserId(authorization));
+        reservation.setUserEmail(securityAspect.getUserEmail(authorization));
         return new ResponseEntity<>(reservationService.save(reservation), HttpStatus.CREATED);
     }
 

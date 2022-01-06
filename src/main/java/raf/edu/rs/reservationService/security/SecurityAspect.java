@@ -71,4 +71,10 @@ public class SecurityAspect {
         Claims claims = tokenService.parseToken(token);
         return claims.get("id", Integer.class).longValue();
     }
+
+    public String getUserEmail(String authorization) {
+        String token = authorization.split(" ")[1];
+        Claims claims = tokenService.parseToken(token);
+        return claims.get("email", String.class);
+    }
 }

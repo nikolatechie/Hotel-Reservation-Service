@@ -73,6 +73,7 @@ public class ReservationService {
                 HttpMethod.POST, null, ResponseEntity.class);
 
         sendEmail("new reservation", reservation);
+        reservation.setSentReminder(false);
         return reservationRepository.save(reservation);
     }
 
@@ -90,6 +91,7 @@ public class ReservationService {
         reservation.setRoomId(newReservation.getRoomId());
         reservation.setStartDate(newReservation.getStartDate());
         reservation.setEndDate(newReservation.getEndDate());
+        reservation.setSentReminder(false); // ako je promijenjen datum, onda treba ponovo da se salje email
         reservationRepository.save(reservation);
         return reservation;
     }
@@ -121,10 +123,11 @@ public class ReservationService {
         return false;
     }
 
+    /** reservation confirmation sent on email */
     private void sendEmail(String emailType, Reservation reservation) {
         Hotel hotel = hotelRepository.getById(reservation.getHotelId());
-        MessageDto msg = new MessageDto(emailType, "IME", "PREZIME", "ngrujic2419rn@raf.rs", hotel.getName(),
-                "LINK", reservation.getId());
+        MessageDto msg = new MessageDto(emailType, "IME", "PREZIME", "ngrujic2419rn@raf.rs",
+                hotel.getName(), "LINK", reservation.getId());
 
         String str = messageHelper.createTextMessage(msg);
         jmsTemplate.convertAndSend("ngrujic2419rn@raf.rs", str); // za test
