@@ -49,7 +49,7 @@ public class ReservationService {
     }
 
     public Reservation save(Reservation reservation) {
-        if (!matchingIds(reservation))
+        /*if (!matchingIds(reservation))
             throw new NotFoundException("The IDs for reservation don't match!");
 
         for (Reservation savedReservation: findAll()) {
@@ -60,17 +60,17 @@ public class ReservationService {
                     reservation.getEndDate().isBefore(savedReservation.getStartDate()))) {
                 throw new InsertException("The room is already reserved in that period!");
             }
-        }
+        }*/
 
         // retry pattern
-        ResponseEntity<DiscountDto> discountResponseEntity =
+        ResponseEntity<Integer> discountResponseEntity =
                 Retry.decorateSupplier(userServiceRetry, () -> getDiscount(reservation.getUserId())).get();
 
         // calculate price
         Room room = roomRepository.getById(reservation.getRoomId());
         Double price = room.getPricePerDay() *
                 (Period.between(reservation.getEndDate(), reservation.getStartDate()).getDays() + 1);
-        price -= price * discountResponseEntity.getBody().getDiscount().doubleValue() / 100;
+        price -= price * discountResponseEntity.getBody().doubleValue() / 100;
         reservation.setTotalPrice(price);
 
         // inform user service to increase number of reservations
@@ -82,10 +82,10 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    private ResponseEntity<DiscountDto> getDiscount(Long userId) {
+    private ResponseEntity<Integer> getDiscount(Long userId) {
         try {
-            return userServiceRestTemplate.exchange("/user/" +
-                    userId + "/discount", HttpMethod.GET, null, DiscountDto.class);
+            return userServiceRestTemplate.exchange("http://localhost:8081/api/user/discount/" + userId,
+                    HttpMethod.GET, null, Integer.class);
         }
         catch (HttpClientErrorException e) {
             throw new NotFoundException("Discount not found!");

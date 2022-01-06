@@ -87,11 +87,6 @@ public class RoomService {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Room with id " + id + " not found!"));
 
-        InsertException insertException = isRoomAdded(newRoom);
-
-        if (insertException != null)
-            throw insertException;
-
         if (!hotelRepository.getById(room.getHotelId()).getManagerId().equals(managerId))
             throw new NotFoundException("Room with id " + id + " doesn't belong to your hotel!");
 
@@ -110,7 +105,7 @@ public class RoomService {
         if (hotelRepository.getById(room.getHotelId()).getManagerId().equals(managerId))
             roomRepository.delete(room);
         else
-            throw  new NotFoundException("Can't delete this room because you're not managing it!");
+            throw new NotFoundException("Can't delete this room because you're not managing it!");
     }
 
     private InsertException isRoomAdded(Room newRoom) {
