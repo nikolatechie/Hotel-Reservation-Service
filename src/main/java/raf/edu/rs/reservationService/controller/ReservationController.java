@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import raf.edu.rs.reservationService.domain.Reservation;
 import raf.edu.rs.reservationService.security.CheckSecurity;
+import raf.edu.rs.reservationService.security.SecurityAspect;
 import raf.edu.rs.reservationService.service.ReservationService;
 import java.util.List;
 
@@ -12,9 +13,11 @@ import java.util.List;
 @RequestMapping(path = "/reservation")
 public class ReservationController {
     private ReservationService reservationService;
+    private SecurityAspect securityAspect;
 
-    public ReservationController(ReservationService reservationService) {
+    public ReservationController(ReservationService reservationService, SecurityAspect securityAspect) {
         this.reservationService = reservationService;
+        this.securityAspect = securityAspect;
     }
 
     @GetMapping
@@ -27,6 +30,7 @@ public class ReservationController {
     @CheckSecurity(roles = {"ROLE_CLIENT"})
     public ResponseEntity<Reservation> addNewReservation(@RequestHeader("Authorization") String authorization,
                                                          @RequestBody Reservation reservation) {
+        reservation.setUserId(securityAspect.getUserId(authorization));
         return new ResponseEntity<>(reservationService.save(reservation), HttpStatus.CREATED);
     }
 
@@ -34,13 +38,14 @@ public class ReservationController {
     @CheckSecurity(roles = {"ROLE_CLIENT", "ROLE_MANAGER"})
     public ResponseEntity<Reservation> update(@RequestHeader("Authorization") String authorization,
                                               @PathVariable Long id, @RequestBody Reservation reservation) {
-        return new ResponseEntity<>(reservationService.update(id, reservation), HttpStatus.OK);
+        Long userId = securityAspect.getUserId(authorization);
+        return new ResponseEntity<>(reservationService.update(id, reservation, userId), HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/{id}")
     @CheckSecurity(roles = {"ROLE_CLIENT", "ROLE_MANAGER"})
     public ResponseEntity<?> delete(@RequestHeader("Authorization") String authorization, @PathVariable Long id) {
-        reservationService.delete(id);
+        reservationService.delete(id, securityAspect.getUserId(authorization));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

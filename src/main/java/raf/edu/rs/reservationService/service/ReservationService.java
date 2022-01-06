@@ -72,10 +72,15 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    public Reservation update(Long id, Reservation newReservation) {
+    public Reservation update(Long id, Reservation newReservation, Long userId) {
         // ne koristi se?
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Reservation with id " + id + " not found!"));
+
+        Hotel hotel = hotelRepository.getById(reservation.getHotelId());
+
+        if (!reservation.getUserId().equals(userId) && !hotel.getManagerId().equals(userId))
+            throw new NotFoundException("No manager nor user found with your ID!");
 
         reservation.setHotelId(newReservation.getHotelId());
         reservation.setRoomId(newReservation.getRoomId());
@@ -85,9 +90,14 @@ public class ReservationService {
         return reservation;
     }
 
-    public void delete(Long id) {
+    public void delete(Long id, Long userId) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Reservation with id " + id + " not found!"));
+
+        Hotel hotel = hotelRepository.getById(reservation.getHotelId());
+
+        if (!reservation.getUserId().equals(userId) && !hotel.getManagerId().equals(userId))
+            throw new NotFoundException("This reservation doesn't match your ID!");
 
         reservationRepository.delete(reservation);
     }

@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import raf.edu.rs.reservationService.domain.Room;
 import raf.edu.rs.reservationService.security.CheckSecurity;
+import raf.edu.rs.reservationService.security.SecurityAspect;
 import raf.edu.rs.reservationService.service.RoomService;
 import java.time.LocalDate;
 import java.util.List;
@@ -13,9 +14,11 @@ import java.util.List;
 @RequestMapping(path = "/room")
 public class RoomController {
     private RoomService roomService;
+    private SecurityAspect securityAspect;
 
-    public RoomController(RoomService roomService) {
+    public RoomController(RoomService roomService, SecurityAspect securityAspect) {
         this.roomService = roomService;
+        this.securityAspect = securityAspect;
     }
 
     @GetMapping
@@ -27,20 +30,22 @@ public class RoomController {
     @PostMapping
     @CheckSecurity(roles = {"ROLE_MANAGER"})
     public ResponseEntity<Room> save(@RequestHeader("Authorization") String authorization, @RequestBody Room newRoom) {
-        return new ResponseEntity<>(roomService.save(newRoom), HttpStatus.CREATED);
+        Long managerId = securityAspect.getUserId(authorization);
+        return new ResponseEntity<>(roomService.save(newRoom, managerId), HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/{id}")
     @CheckSecurity(roles = {"ROLE_MANAGER"})
     public ResponseEntity<Room> update(@RequestHeader("Authorization") String authorization,
                                        @PathVariable Long id, @RequestBody Room newRoom) {
-        return new ResponseEntity<>(roomService.update(id, newRoom), HttpStatus.OK);
+        Long managerId = securityAspect.getUserId(authorization);
+        return new ResponseEntity<>(roomService.update(id, newRoom, managerId), HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/{id}")
     @CheckSecurity(roles = {"ROLE_MANAGER"})
     public ResponseEntity<?> delete(@RequestHeader("Authorization") String authorization, @PathVariable Long id) {
-        roomService.delete(id);
+        roomService.delete(id, securityAspect.getUserId(authorization));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -48,6 +53,7 @@ public class RoomController {
     public ResponseEntity<List<Room>> listAvailableRooms(
             @RequestParam(required = false, value = "city") String city,
             @RequestParam(required = false, value = "hotelName") String hotelName,
+            @RequestParam(required = false, value = "roomType") String roomType,
             @RequestParam(required = false, value = "startDate") String date1,
             @RequestParam(required = false, value = "endDate") String date2,
             @RequestParam(required = false, value = "sort") String sort) {
@@ -68,7 +74,7 @@ public class RoomController {
                 Integer.parseInt(date2.substring(8))
             );
 
-        return new ResponseEntity<>(roomService.findAllAvailable(city, hotelName, startDate, endDate, sort),
+        return new ResponseEntity<>(roomService.findAllAvailable(city, hotelName, roomType, startDate, endDate, sort),
                 HttpStatus.OK);
     }
 }

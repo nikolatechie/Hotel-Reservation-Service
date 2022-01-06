@@ -22,9 +22,20 @@ public class HotelService {
         return hotelRepository.save(hotel);
     }
 
-    public Hotel update(Long id, Hotel newHotel) {
-        Hotel hotel = hotelRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Hotel with id " + id + " not found!"));
+    public Hotel findByManagerId(Long managerId) {
+        for (Hotel hotel: findAll()) {
+            if (hotel.getManagerId().equals(managerId))
+                return hotel;
+        }
+
+        return null;
+    }
+
+    public Hotel update(Long managerId, Hotel newHotel) {
+        Hotel hotel = findByManagerId(managerId);
+
+        if (hotel == null)
+            throw new NotFoundException("Manager has no hotel saved!");
 
         hotel.setCity(newHotel.getCity());
         hotel.setName(newHotel.getName());

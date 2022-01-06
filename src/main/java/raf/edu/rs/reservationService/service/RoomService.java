@@ -29,18 +29,20 @@ public class RoomService {
         return roomRepository.findAll();
     }
 
-    public List<Room> findAllAvailable(String city, String hotelName, LocalDate startDate, LocalDate endDate,
-                                       String sort) {
+    public List<Room> findAllAvailable(String city, String hotelName, String roomType, LocalDate startDate,
+                                       LocalDate endDate, String sort) {
         List<Room> availableRooms = new ArrayList<>();
-        boolean isCityNull = city == null, isHotelNameNull = hotelName == null;
+        boolean isCityNull = city == null, isHotelNameNull = hotelName == null, isTypeNull = roomType == null;
 
         for (Room room: findAll()) {
             Hotel hotel = hotelRepository.getById(room.getHotelId());
             if (isCityNull) city = hotel.getCity();
             if (isHotelNameNull) hotelName = hotel.getName();
+            if (isTypeNull) roomType = room.getType();
 
             if (hotel.getCity().equals(city) &&
                     hotel.getName().equals(hotelName) &&
+                    room.getType().equals(roomType) &&
                     !isReserved(room, startDate, endDate))
                 availableRooms.add(room);
         }
@@ -67,11 +69,11 @@ public class RoomService {
         return false;
     }
 
-    public Room save(Room newRoom) {
+    public Room save(Room newRoom, Long managerId) {
         Long hotelId = newRoom.getHotelId();
 
-        if (!hotelRepository.existsById(hotelId))
-            throw new NotFoundException("Hotel with id " + hotelId + " not found!");
+        if (!hotelRepository.existsById(hotelId) || !hotelRepository.getById(hotelId).getManagerId().equals(managerId))
+            throw new NotFoundException("Invalid parameters for hotel with id " + hotelId);
 
         InsertException insertException = isRoomAdded(newRoom);
 
@@ -81,7 +83,7 @@ public class RoomService {
         return roomRepository.save(newRoom);
     }
 
-    public Room update(Long id, Room newRoom) {
+    public Room update(Long id, Room newRoom, Long managerId) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Room with id " + id + " not found!"));
 
@@ -89,6 +91,9 @@ public class RoomService {
 
         if (insertException != null)
             throw insertException;
+
+        if (!hotelRepository.getById(room.getHotelId()).getManagerId().equals(managerId))
+            throw new NotFoundException("Room with id " + id + " doesn't belong to your hotel!");
 
         room.setHotelId(newRoom.getHotelId());
         room.setRoomNumber(newRoom.getRoomNumber());
@@ -98,11 +103,14 @@ public class RoomService {
         return room;
     }
 
-    public void delete(Long id) {
+    public void delete(Long id, Long managerId) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Room with id " + id + " not found!"));
 
-        roomRepository.delete(room);
+        if (hotelRepository.getById(room.getHotelId()).getManagerId().equals(managerId))
+            roomRepository.delete(room);
+        else
+            throw  new NotFoundException("Can't delete this room because you're not managing it!");
     }
 
     private InsertException isRoomAdded(Room newRoom) {

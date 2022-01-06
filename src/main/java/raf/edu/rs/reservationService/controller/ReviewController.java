@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import raf.edu.rs.reservationService.domain.Hotel;
 import raf.edu.rs.reservationService.domain.Review;
 import raf.edu.rs.reservationService.security.CheckSecurity;
+import raf.edu.rs.reservationService.security.SecurityAspect;
 import raf.edu.rs.reservationService.service.ReviewService;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -14,9 +15,11 @@ import java.util.List;
 @RequestMapping("/review")
 public class ReviewController {
     private ReviewService reviewService;
+    private SecurityAspect securityAspect;
 
-    public ReviewController(ReviewService reviewService) {
+    public ReviewController(ReviewService reviewService, SecurityAspect securityAspect) {
         this.reviewService = reviewService;
+        this.securityAspect = securityAspect;
     }
 
     @GetMapping
@@ -28,6 +31,7 @@ public class ReviewController {
     @CheckSecurity(roles = {"ROLE_CLIENT"})
     public ResponseEntity<Review> addNewReview(@RequestHeader("Authorization") String authorization,
                                                @RequestBody Review review) {
+        review.setUserId(securityAspect.getUserId(authorization));
         return new ResponseEntity<>(reviewService.save(review), HttpStatus.CREATED);
     }
 
@@ -35,14 +39,15 @@ public class ReviewController {
     @CheckSecurity(roles = {"ROLE_CLIENT"})
     public ResponseEntity<Review> updateReview(@RequestHeader("Authorization") String authorization,
                                                @RequestBody @NotNull Long id, @RequestBody @NotNull Review review) {
-        return new ResponseEntity<>(reviewService.update(id, review), HttpStatus.OK);
+        Long clientId = securityAspect.getUserId(authorization);
+        return new ResponseEntity<>(reviewService.update(id, review, clientId), HttpStatus.OK);
     }
 
     @DeleteMapping
     @CheckSecurity(roles = {"ROLE_CLIENT"})
     public ResponseEntity<Review> deleteReview(@RequestHeader("Authorization") String authorization,
                                                @RequestBody Long id) {
-        reviewService.delete(id);
+        reviewService.delete(id, securityAspect.getUserId(authorization));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

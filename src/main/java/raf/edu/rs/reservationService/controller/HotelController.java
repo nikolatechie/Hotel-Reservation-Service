@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import raf.edu.rs.reservationService.domain.Hotel;
 import raf.edu.rs.reservationService.security.CheckSecurity;
+import raf.edu.rs.reservationService.security.SecurityAspect;
 import raf.edu.rs.reservationService.service.HotelService;
 import java.util.List;
 
@@ -12,9 +13,11 @@ import java.util.List;
 @RequestMapping("/hotel")
 public class HotelController {
     private HotelService hotelService;
+    private SecurityAspect securityAspect;
 
-    public HotelController(HotelService hotelService) {
+    public HotelController(HotelService hotelService, SecurityAspect securityAspect) {
         this.hotelService = hotelService;
+        this.securityAspect = securityAspect;
     }
 
     @GetMapping
@@ -26,20 +29,22 @@ public class HotelController {
     @CheckSecurity(roles = {"ROLE_MANAGER"})
     public ResponseEntity<Hotel> addNewHotel(@RequestHeader("Authorization") String authorization,
                                              @RequestBody Hotel hotel) {
+        hotel.setManagerId(securityAspect.getUserId(authorization));
         return new ResponseEntity<>(hotelService.save(hotel), HttpStatus.CREATED);
     }
 
-    @PutMapping(path = "/{id}")
+    @PutMapping
     @CheckSecurity(roles = {"ROLE_MANAGER"})
     public ResponseEntity<Hotel> updateHotel(@RequestHeader("Authorization") String authorization,
-                                             @PathVariable Long id, @RequestBody Hotel newHotel) {
-        return new ResponseEntity<>(hotelService.update(id, newHotel), HttpStatus.OK);
+                                             @RequestBody Hotel newHotel) {
+        Long managerId = securityAspect.getUserId(authorization);
+        return new ResponseEntity<>(hotelService.update(managerId, newHotel), HttpStatus.OK);
     }
 
-    @DeleteMapping(path = "/{id}")
+    /*@DeleteMapping(path = "/{id}")
     @CheckSecurity(roles = {"ROLE_MANAGER"})
     public ResponseEntity<?> deleteHotel(@RequestHeader("Authorization") String authorization, @PathVariable Long id) {
         hotelService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
+    }*/
 }

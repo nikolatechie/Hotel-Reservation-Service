@@ -12,6 +12,8 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long userId;
+
     @NotNull
     private Long reservationId;
 
@@ -21,7 +23,8 @@ public class Review {
     private Integer rating;
     private String comment;
 
-    public Review(Long reservationId, Integer rating, String comment) {
+    public Review(Long userId, Long reservationId, Integer rating, String comment) {
+        this.userId = userId;
         this.reservationId = reservationId;
         this.rating = rating;
         this.comment = comment;
@@ -35,6 +38,14 @@ public class Review {
 
     public void setReservationId(Long reservationId) {
         this.reservationId = reservationId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public Integer getRating() {

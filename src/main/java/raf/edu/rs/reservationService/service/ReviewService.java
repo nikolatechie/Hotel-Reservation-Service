@@ -32,14 +32,22 @@ public class ReviewService {
         return review;
     }
 
-    public void delete(Long id) {
-        if (reviewRepository.existsById(id))
-            reviewRepository.deleteById(id);
+    public void delete(Long id, Long clientId) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("No review found!"));
+
+        if (!review.getUserId().equals(clientId))
+            throw new NotFoundException("No review found with your ID");
+
+        reviewRepository.deleteById(id);
     }
 
-    public Review update(Long id, Review newReview) {
+    public Review update(Long id, Review newReview, Long clientId) {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Review with id " + id + " not found!"));
+
+        if (!review.getUserId().equals(clientId))
+            throw new NotFoundException("Can't find reservation on your name!");
 
         review.setRating(newReview.getRating());
         review.setComment(newReview.getComment());

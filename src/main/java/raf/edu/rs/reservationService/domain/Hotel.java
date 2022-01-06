@@ -9,12 +9,14 @@ public class Hotel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long managerId;
     private String city;
     private String name;
     private String description;
     private Integer numberOfRooms;
 
-    public Hotel(String city, String name, String description, Integer numberOfRooms) {
+    public Hotel(Long managerId, String city, String name, String description, Integer numberOfRooms) {
+        this.managerId = managerId;
         this.city = city;
         this.name = name;
         this.description = description;
@@ -25,6 +27,14 @@ public class Hotel {
 
     public Long getId() {
         return id;
+    }
+
+    public Long getManagerId() {
+        return managerId;
+    }
+
+    public void setManagerId(Long managerId) {
+        this.managerId = managerId;
     }
 
     public String getCity() {
