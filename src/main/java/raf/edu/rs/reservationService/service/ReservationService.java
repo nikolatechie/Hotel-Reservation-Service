@@ -68,6 +68,10 @@ public class ReservationService {
         price -= price * discountResponseEntity.getBody().getDiscount().doubleValue() / 100;
         reservation.setTotalPrice(price);
 
+        // inform user service to increase number of reservations
+        userServiceRestTemplate.exchange("/user/incrementRez/" + reservation.getUserId(),
+                HttpMethod.POST, null, ResponseEntity.class);
+
         sendEmail("new reservation", reservation);
         return reservationRepository.save(reservation);
     }
@@ -98,6 +102,10 @@ public class ReservationService {
 
         if (!reservation.getUserId().equals(userId) && !hotel.getManagerId().equals(userId))
             throw new NotFoundException("This reservation doesn't match your ID!");
+
+        // inform user service to decrease number of reservations
+        userServiceRestTemplate.exchange("/user/decrementRez/" + reservation.getUserId(),
+                HttpMethod.POST, null, ResponseEntity.class);
 
         reservationRepository.delete(reservation);
     }
