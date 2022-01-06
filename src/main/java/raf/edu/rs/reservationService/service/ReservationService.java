@@ -49,7 +49,7 @@ public class ReservationService {
     }
 
     public Reservation save(Reservation reservation) {
-        /*if (!matchingIds(reservation))
+        if (!matchingIds(reservation))
             throw new NotFoundException("The IDs for reservation don't match!");
 
         for (Reservation savedReservation: findAll()) {
@@ -60,7 +60,7 @@ public class ReservationService {
                     reservation.getEndDate().isBefore(savedReservation.getStartDate()))) {
                 throw new InsertException("The room is already reserved in that period!");
             }
-        }*/
+        }
 
         // retry pattern
         ResponseEntity<Integer> discountResponseEntity =
@@ -74,7 +74,7 @@ public class ReservationService {
         reservation.setTotalPrice(price);
 
         // inform user service to increase number of reservations
-        userServiceRestTemplate.exchange("/user/incrementRez/" + reservation.getUserId(),
+        userServiceRestTemplate.exchange("http://localhost:8081/api/user/incrementRez/" + reservation.getUserId(),
                 HttpMethod.POST, null, ResponseEntity.class);
 
         sendEmail("new reservation", reservation);
