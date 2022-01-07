@@ -7,12 +7,11 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import raf.edu.rs.reservationService.clientUserService.dto.DiscountDto;
-import raf.edu.rs.reservationService.configuration.RetryConfiguration;
 import raf.edu.rs.reservationService.domain.Hotel;
 import raf.edu.rs.reservationService.domain.Reservation;
 import raf.edu.rs.reservationService.domain.Room;
 import raf.edu.rs.reservationService.dto.MessageDto;
+import raf.edu.rs.reservationService.dto.UserDto;
 import raf.edu.rs.reservationService.exceptions.InsertException;
 import raf.edu.rs.reservationService.exceptions.NotFoundException;
 import raf.edu.rs.reservationService.messageHelper.MessageHelper;
@@ -69,7 +68,7 @@ public class ReservationService {
         // calculate price
         Room room = roomRepository.getById(reservation.getRoomId());
         Double price = room.getPricePerDay() *
-                (Period.between(reservation.getEndDate(), reservation.getStartDate()).getDays() + 1);
+                (Period.between(reservation.getStartDate(), reservation.getEndDate()).getDays() + 1);
         price -= price * discountResponseEntity.getBody().doubleValue() / 100;
         reservation.setTotalPrice(price);
 
@@ -77,7 +76,7 @@ public class ReservationService {
         userServiceRestTemplate.exchange("http://localhost:8081/api/user/incrementRez/" + reservation.getUserId(),
                 HttpMethod.POST, null, ResponseEntity.class);
 
-        sendEmail("new reservation", reservation);
+        sendMail("reservation_successful", reservation);
         reservation.setSentReminder(false);
         return reservationRepository.save(reservation);
     }
@@ -93,6 +92,10 @@ public class ReservationService {
         catch (Exception e) {
             throw new RuntimeException("Internal server error");
         }
+    }
+
+    public ReservationRepository getReservationRepository() {
+        return reservationRepository;
     }
 
     public Reservation update(Long id, Reservation newReservation, Long userId) {
@@ -124,9 +127,10 @@ public class ReservationService {
             throw new NotFoundException("This reservation doesn't match your ID!");
 
         // inform user service to decrease number of reservations
-        userServiceRestTemplate.exchange("/user/decrementRez/" + reservation.getUserId(),
+        userServiceRestTemplate.exchange("http://localhost:8081/api/user/decrementRez/" + reservation.getUserId(),
                 HttpMethod.POST, null, ResponseEntity.class);
 
+        sendMail("reservation_cancellation", reservation);
         reservationRepository.delete(reservation);
     }
 
@@ -142,12 +146,16 @@ public class ReservationService {
     }
 
     /** reservation confirmation sent on email */
-    private void sendEmail(String emailType, Reservation reservation) {
+    private void sendMail(String emailType, Reservation reservation) {
         Hotel hotel = hotelRepository.getById(reservation.getHotelId());
-        MessageDto msg = new MessageDto(emailType, "IME", "PREZIME", "ngrujic2419rn@raf.rs",
-                hotel.getName(), "LINK", reservation.getId());
+
+        ResponseEntity<UserDto> userDto = userServiceRestTemplate.exchange("http://localhost:8081/api/user/get/" +
+                        reservation.getUserId(), HttpMethod.GET, null, UserDto.class);
+
+        MessageDto msg = new MessageDto(emailType, userDto.getBody().getFirstName(), userDto.getBody().getLastName(),
+                userDto.getBody().getEmail(), hotel.getName());
 
         String str = messageHelper.createTextMessage(msg);
-        jmsTemplate.convertAndSend("ngrujic2419rn@raf.rs", str); // za test
+        jmsTemplate.convertAndSend("send_mail_destination", str);
     }
 }

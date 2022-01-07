@@ -5,19 +5,14 @@ public class MessageDto {
     private String name;
     private String lastname;
     private String hotelName;
-    private Long reservationId;
-    private String link;
     private String email;
 
-    public MessageDto(String type, String name, String lastname, String email, String hotelName, String link,
-                      Long reservationId) {
+    public MessageDto(String type, String name, String lastname, String email, String hotelName) {
         this.type = type;
         this.name = name;
         this.lastname = lastname;
         this.email = email;
         this.hotelName = hotelName;
-        this.link = link;
-        this.reservationId = reservationId;
     }
 
     public MessageDto() {}
@@ -60,21 +55,5 @@ public class MessageDto {
 
     public void setHotelName(String hotelName) {
         this.hotelName = hotelName;
-    }
-
-    public String getLink() {
-        return link;
-    }
-
-    public void setLink(String link) {
-        this.link = link;
-    }
-
-    public Long getReservationId() {
-        return reservationId;
-    }
-
-    public void setReservationId(Long reservationId) {
-        this.reservationId = reservationId;
     }
 }
