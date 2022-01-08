@@ -35,10 +35,10 @@ public class ReviewController {
         return new ResponseEntity<>(reviewService.save(review), HttpStatus.CREATED);
     }
 
-    @PutMapping
+    @PutMapping(path = "/{id}")
     @CheckSecurity(roles = {"ROLE_CLIENT"})
     public ResponseEntity<Review> updateReview(@RequestHeader("Authorization") String authorization,
-                                               @RequestBody @NotNull Long id, @RequestBody @NotNull Review review) {
+                                               @PathVariable Long id, @RequestBody @NotNull Review review) {
         Long clientId = securityAspect.getUserId(authorization);
         return new ResponseEntity<>(reviewService.update(id, review, clientId), HttpStatus.OK);
     }
