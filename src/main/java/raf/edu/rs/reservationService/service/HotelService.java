@@ -2,6 +2,7 @@ package raf.edu.rs.reservationService.service;
 
 import org.springframework.stereotype.Service;
 import raf.edu.rs.reservationService.domain.Hotel;
+import raf.edu.rs.reservationService.exceptions.InsertException;
 import raf.edu.rs.reservationService.exceptions.NotFoundException;
 import raf.edu.rs.reservationService.repository.HotelRepository;
 import java.util.List;
@@ -19,7 +20,10 @@ public class HotelService {
     }
 
     public Hotel save(Hotel hotel) {
-        return hotelRepository.save(hotel);
+        if (findByManagerId(hotel.getManagerId()) == null)
+            return hotelRepository.save(hotel);
+
+        throw new InsertException("You already work at one hotel!");
     }
 
     public Hotel findByManagerId(Long managerId) {
