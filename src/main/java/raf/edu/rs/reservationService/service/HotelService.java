@@ -51,4 +51,21 @@ public class HotelService {
 
         hotelRepository.delete(hotel);
     }
+
+    public Hotel getById(Long id) {
+        return hotelRepository.getById(id);
+    }
+
+    public boolean existsById(Long id) {
+        return hotelRepository.existsById(id);
+    }
+
+    public Hotel getByManagerId(Long managerId) {
+        for (Hotel hotel: findAll()) {
+            if (hotel.getManagerId().equals(managerId))
+                return hotel;
+        }
+
+        return null;
+    }
 }

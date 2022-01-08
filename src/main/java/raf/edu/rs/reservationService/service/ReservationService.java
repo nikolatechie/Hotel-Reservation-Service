@@ -24,18 +24,18 @@ import java.util.List;
 @Service
 public class ReservationService {
     private ReservationRepository reservationRepository;
-    private RoomRepository roomRepository;
+    private RoomService roomService;
     private HotelRepository hotelRepository;
     private JmsTemplate jmsTemplate;
     private MessageHelper messageHelper;
     private RestTemplate userServiceRestTemplate;
     private Retry userServiceRetry;
 
-    public ReservationService(ReservationRepository reservationRepository, RoomRepository roomRepository,
+    public ReservationService(ReservationRepository reservationRepository, RoomService roomService,
                               HotelRepository hotelRepository, JmsTemplate jmsTemplate, MessageHelper messageHelper,
                               RestTemplate userServiceRestTemplate, Retry userServiceRetry) {
         this.reservationRepository = reservationRepository;
-        this.roomRepository = roomRepository;
+        this.roomService = roomService;
         this.hotelRepository = hotelRepository;
         this.jmsTemplate = jmsTemplate;
         this.messageHelper = messageHelper;
@@ -66,7 +66,7 @@ public class ReservationService {
                 Retry.decorateSupplier(userServiceRetry, () -> getDiscount(reservation.getUserId())).get();
 
         // calculate price
-        Room room = roomRepository.getById(reservation.getRoomId());
+        Room room = roomService.getById(reservation.getRoomId());
         Double price = room.getPricePerDay() *
                 (Period.between(reservation.getStartDate(), reservation.getEndDate()).getDays() + 1);
         price -= price * discountResponseEntity.getBody().doubleValue() / 100;
@@ -135,7 +135,7 @@ public class ReservationService {
     }
 
     private boolean matchingIds(Reservation reservation) {
-        List<Room> rooms = roomRepository.findAll();
+        List<Room> rooms = roomService.findAll();
 
         for (Room room: rooms) {
             if (room.getId().equals(reservation.getRoomId()) && room.getHotelId().equals(reservation.getHotelId()))

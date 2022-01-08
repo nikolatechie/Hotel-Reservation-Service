@@ -15,13 +15,13 @@ import java.util.*;
 @Service
 public class RoomService {
     private RoomRepository roomRepository;
-    private HotelRepository hotelRepository;
+    private HotelService hotelService;
     private ReservationRepository reservationRepository;
 
-    public RoomService(RoomRepository roomRepository, HotelRepository hotelRepository,
+    public RoomService(RoomRepository roomRepository, HotelService hotelService,
                        ReservationRepository reservationRepository) {
         this.roomRepository = roomRepository;
-        this.hotelRepository = hotelRepository;
+        this.hotelService = hotelService;
         this.reservationRepository = reservationRepository;
     }
 
@@ -35,7 +35,7 @@ public class RoomService {
         boolean isCityNull = city == null, isHotelNameNull = hotelName == null, isTypeNull = roomType == null;
 
         for (Room room: findAll()) {
-            Hotel hotel = hotelRepository.getById(room.getHotelId());
+            Hotel hotel = hotelService.getById(room.getHotelId());
             if (isCityNull) city = hotel.getCity();
             if (isHotelNameNull) hotelName = hotel.getName();
             if (isTypeNull) roomType = room.getType();
@@ -70,9 +70,11 @@ public class RoomService {
     }
 
     public Room save(Room newRoom, Long managerId) {
-        Long hotelId = newRoom.getHotelId();
+        Hotel hotel = hotelService.getByManagerId(managerId);
+        Long hotelId = hotel.getId();
+        newRoom.setHotelId(hotelId);
 
-        if (!hotelRepository.existsById(hotelId) || !hotelRepository.getById(hotelId).getManagerId().equals(managerId))
+        if (!hotelService.existsById(hotelId) || !hotelService.getById(hotelId).getManagerId().equals(managerId))
             throw new NotFoundException("Invalid parameters for hotel with id " + hotelId);
 
         InsertException insertException = isRoomAdded(newRoom);
@@ -83,14 +85,13 @@ public class RoomService {
         return roomRepository.save(newRoom);
     }
 
-    public Room update(Long id, Room newRoom, Long managerId) {
-        Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Room with id " + id + " not found!"));
+    public Room update(Integer roomNumber, Room newRoom, Long managerId) {
+        Room room = findByRoomNumber(roomNumber)
+                .orElseThrow(() -> new NotFoundException("Room with roomNumber " + roomNumber + " not found!"));
 
-        if (!hotelRepository.getById(room.getHotelId()).getManagerId().equals(managerId))
-            throw new NotFoundException("Room with id " + id + " doesn't belong to your hotel!");
+        if (!hotelService.getById(room.getHotelId()).getManagerId().equals(managerId))
+            throw new NotFoundException("Room with roomNumber " + roomNumber + " doesn't belong to your hotel!");
 
-        room.setHotelId(newRoom.getHotelId());
         room.setRoomNumber(newRoom.getRoomNumber());
         room.setType(newRoom.getType());
         room.setPricePerDay(newRoom.getPricePerDay());
@@ -98,11 +99,23 @@ public class RoomService {
         return room;
     }
 
+    public void rangeUpdate(Long managerId, Double startPrice, Double endPrice, String type) {
+        for (Room room: findAll()) {
+            Hotel hotel = hotelService.getById(room.getHotelId());
+
+            if (hotel.getManagerId().equals(managerId) && room.getPricePerDay() >= startPrice &&
+                    room.getPricePerDay() <= endPrice) {
+                room.setType(type);
+                roomRepository.save(room);
+            }
+        }
+    }
+
     public void delete(Long id, Long managerId) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Room with id " + id + " not found!"));
 
-        if (hotelRepository.getById(room.getHotelId()).getManagerId().equals(managerId))
+        if (hotelService.getById(room.getHotelId()).getManagerId().equals(managerId))
             roomRepository.delete(room);
         else
             throw new NotFoundException("Can't delete this room because you're not managing it!");
@@ -120,5 +133,18 @@ public class RoomService {
         }
 
         return null;
+    }
+
+    public Room getById(Long id) {
+        return roomRepository.getById(id);
+    }
+
+    public Optional<Room> findByRoomNumber(Integer roomNumber) {
+        for (Room room: findAll()) {
+            if (room.getRoomNumber().equals(roomNumber))
+                return Optional.of(room);
+        }
+
+        return Optional.empty();
     }
 }

@@ -7,6 +7,8 @@ import raf.edu.rs.reservationService.domain.Room;
 import raf.edu.rs.reservationService.security.CheckSecurity;
 import raf.edu.rs.reservationService.security.SecurityAspect;
 import raf.edu.rs.reservationService.service.RoomService;
+
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -34,20 +36,32 @@ public class RoomController {
         return new ResponseEntity<>(roomService.save(newRoom, managerId), HttpStatus.CREATED);
     }
 
-    @PutMapping(path = "/{id}")
+    @PutMapping(path = "/{roomNumber}")
     @CheckSecurity(roles = {"ROLE_MANAGER"})
     public ResponseEntity<Room> update(@RequestHeader("Authorization") String authorization,
-                                       @PathVariable Long id, @RequestBody Room newRoom) {
+                                       @PathVariable Integer roomNumber, @RequestBody Room newRoom) {
         Long managerId = securityAspect.getUserId(authorization);
-        return new ResponseEntity<>(roomService.update(id, newRoom, managerId), HttpStatus.OK);
+        return new ResponseEntity<>(roomService.update(roomNumber, newRoom, managerId), HttpStatus.OK);
     }
 
-    @DeleteMapping(path = "/{id}")
+    @GetMapping(path = "/rangeUpdate")
+    @CheckSecurity(roles = {"ROLE_MANAGER"})
+    public ResponseEntity<?> rangeUpdate(@RequestHeader("Authorization") String authorization,
+                                         @RequestParam("startPrice") Double startPrice,
+                                         @RequestParam("endPrice") Double endPrice,
+                                         @RequestParam("type") String type) {
+        System.out.println("TU SAM " + startPrice + " " + endPrice + " " + type);
+        Long managerId = securityAspect.getUserId(authorization);
+        roomService.rangeUpdate(managerId, startPrice, endPrice, type);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /*@DeleteMapping(path = "/{id}")
     @CheckSecurity(roles = {"ROLE_MANAGER"})
     public ResponseEntity<?> delete(@RequestHeader("Authorization") String authorization, @PathVariable Long id) {
         roomService.delete(id, securityAspect.getUserId(authorization));
         return new ResponseEntity<>(HttpStatus.OK);
-    }
+    }*/
 
     @GetMapping(path = "/list")
     public ResponseEntity<List<Room>> listAvailableRooms(
