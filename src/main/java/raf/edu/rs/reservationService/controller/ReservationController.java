@@ -26,6 +26,16 @@ public class ReservationController {
         return new ResponseEntity<>(reservationService.findAll(), HttpStatus.OK);
     }
 
+    @GetMapping("/manager")
+    @CheckSecurity(roles = {"ROLE_MANAGER"})
+    public ResponseEntity<List<Reservation>> getReservations(@RequestHeader("Authorization") String authorization) {
+        return new ResponseEntity<>(
+                reservationService.findRelatedReservations(
+                    securityAspect.getUserId(authorization)),
+                    HttpStatus.OK
+        );
+    }
+
     @PostMapping
     @CheckSecurity(roles = {"ROLE_CLIENT"})
     public ResponseEntity<Reservation> addNewReservation(@RequestHeader("Authorization") String authorization,

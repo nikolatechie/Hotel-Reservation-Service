@@ -17,8 +17,8 @@ import raf.edu.rs.reservationService.exceptions.NotFoundException;
 import raf.edu.rs.reservationService.messageHelper.MessageHelper;
 import raf.edu.rs.reservationService.repository.HotelRepository;
 import raf.edu.rs.reservationService.repository.ReservationRepository;
-import raf.edu.rs.reservationService.repository.RoomRepository;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -45,6 +45,19 @@ public class ReservationService {
 
     public List<Reservation> findAll() {
         return reservationRepository.findAll();
+    }
+
+    public List<Reservation> findRelatedReservations(Long managerId) {
+        List<Reservation> ans = new ArrayList<>();
+
+        for (Reservation reservation: findAll()) {
+            Hotel hotel = hotelRepository.getById(reservation.getHotelId());
+
+            if (hotel.getManagerId().equals(managerId))
+                ans.add(reservation);
+        }
+
+        return ans;
     }
 
     public Reservation save(Reservation reservation) {
