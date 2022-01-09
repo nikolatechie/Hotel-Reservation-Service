@@ -74,7 +74,8 @@ public class RoomService {
         Long hotelId = hotel.getId();
         newRoom.setHotelId(hotelId);
 
-        if (!hotelService.existsById(hotelId) || !hotelService.getById(hotelId).getManagerId().equals(managerId))
+        if (!hotelService.existsById(hotelId) || !hotelService.getById(hotelId).getManagerId().equals(managerId) ||
+            newRoom.getRoomNumber() > hotel.getNumberOfRooms())
             throw new NotFoundException("Invalid parameters for hotel with id " + hotelId);
 
         InsertException insertException = isRoomAdded(newRoom);

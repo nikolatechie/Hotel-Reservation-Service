@@ -2,6 +2,7 @@ package raf.edu.rs.reservationService.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Entity
@@ -11,14 +12,23 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     private Long userId;
+
+    @NotNull
     private String userEmail;
+
+    @NotNull
     private Long hotelId;
+
+    @NotNull
     private Long roomId;
 
+    @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
+    @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
