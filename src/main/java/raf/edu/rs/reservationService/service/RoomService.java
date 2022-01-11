@@ -32,7 +32,7 @@ public class RoomService {
     public List<Room> findAllAvailable(String city, String hotelName, String roomType, LocalDate startDate,
                                        LocalDate endDate, String sort) {
         List<Room> availableRooms = new ArrayList<>();
-        boolean isCityNull = city == null, isHotelNameNull = hotelName == null, isTypeNull = roomType == null;
+        boolean isCityNull = (city == null), isHotelNameNull = (hotelName == null), isTypeNull = (roomType == null);
 
         for (Room room: findAll()) {
             Hotel hotel = hotelService.getById(room.getHotelId());

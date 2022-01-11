@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import raf.edu.rs.reservationService.domain.Hotel;
 import raf.edu.rs.reservationService.domain.Reservation;
 import raf.edu.rs.reservationService.domain.Review;
+import raf.edu.rs.reservationService.exceptions.InsertException;
 import raf.edu.rs.reservationService.exceptions.NotFoundException;
 import raf.edu.rs.reservationService.repository.HotelRepository;
 import raf.edu.rs.reservationService.repository.ReservationRepository;
@@ -27,6 +28,11 @@ public class ReviewService {
     public Review save(Review review) {
         if (!reservationRepository.existsById(review.getReservationId()))
             throw new NotFoundException("Reservation with id " + review.getReservationId() + " not found!");
+
+        for (Review allRev: reviewRepository.findAll()) {
+            if (allRev.getReservationId().equals(review.getReservationId()))
+                throw new InsertException("Already reviewed!");
+        }
 
         reviewRepository.save(review);
         return review;
