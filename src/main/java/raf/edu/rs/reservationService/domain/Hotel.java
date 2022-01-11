@@ -1,6 +1,7 @@
 package raf.edu.rs.reservationService.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table
@@ -9,10 +10,18 @@ public class Hotel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     private Long managerId;
+
+    @NotNull
     private String city;
+
+    @NotNull
     private String name;
+
     private String description;
+
+    @NotNull
     private Integer numberOfRooms;
 
     public Hotel(Long managerId, String city, String name, String description, Integer numberOfRooms) {

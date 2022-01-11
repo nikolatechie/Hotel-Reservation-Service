@@ -1,6 +1,7 @@
 package raf.edu.rs.reservationService.domain;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table
@@ -9,9 +10,16 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     private Long hotelId;
+
+    @NotNull
     private Integer roomNumber;
+
+    @NotNull
     private String type;
+
+    @NotNull
     private Double pricePerDay;
 
     public Room(Long hotelId, Integer roomNumber, String type, Double pricePerDay) {

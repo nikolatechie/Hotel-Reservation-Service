@@ -7,8 +7,6 @@ import raf.edu.rs.reservationService.domain.Room;
 import raf.edu.rs.reservationService.security.CheckSecurity;
 import raf.edu.rs.reservationService.security.SecurityAspect;
 import raf.edu.rs.reservationService.service.RoomService;
-
-import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -50,7 +48,6 @@ public class RoomController {
                                          @RequestParam("startPrice") Double startPrice,
                                          @RequestParam("endPrice") Double endPrice,
                                          @RequestParam("type") String type) {
-        System.out.println("TU SAM " + startPrice + " " + endPrice + " " + type);
         Long managerId = securityAspect.getUserId(authorization);
         roomService.rangeUpdate(managerId, startPrice, endPrice, type);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -71,6 +68,10 @@ public class RoomController {
             @RequestParam(required = false, value = "startDate") String date1,
             @RequestParam(required = false, value = "endDate") String date2,
             @RequestParam(required = false, value = "sort") String sort) {
+
+        if (city.equals("")) city = null;
+        if (hotelName.equals("")) hotelName = null;
+        if (roomType.equals("")) roomType = null;
 
         LocalDate startDate = LocalDate.now().plusYears(1), endDate = LocalDate.now().plusYears(1);
 

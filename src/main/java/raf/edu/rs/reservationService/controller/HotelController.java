@@ -7,6 +7,8 @@ import raf.edu.rs.reservationService.domain.Hotel;
 import raf.edu.rs.reservationService.security.CheckSecurity;
 import raf.edu.rs.reservationService.security.SecurityAspect;
 import raf.edu.rs.reservationService.service.HotelService;
+
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController

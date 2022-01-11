@@ -32,7 +32,7 @@ public class RoomService {
     public List<Room> findAllAvailable(String city, String hotelName, String roomType, LocalDate startDate,
                                        LocalDate endDate, String sort) {
         List<Room> availableRooms = new ArrayList<>();
-        boolean isCityNull = city == null, isHotelNameNull = hotelName == null, isTypeNull = roomType == null;
+        boolean isCityNull = (city == null), isHotelNameNull = (hotelName == null), isTypeNull = (roomType == null);
 
         for (Room room: findAll()) {
             Hotel hotel = hotelService.getById(room.getHotelId());
@@ -74,7 +74,8 @@ public class RoomService {
         Long hotelId = hotel.getId();
         newRoom.setHotelId(hotelId);
 
-        if (!hotelService.existsById(hotelId) || !hotelService.getById(hotelId).getManagerId().equals(managerId))
+        if (!hotelService.existsById(hotelId) || !hotelService.getById(hotelId).getManagerId().equals(managerId) ||
+            newRoom.getRoomNumber() > hotel.getNumberOfRooms())
             throw new NotFoundException("Invalid parameters for hotel with id " + hotelId);
 
         InsertException insertException = isRoomAdded(newRoom);
