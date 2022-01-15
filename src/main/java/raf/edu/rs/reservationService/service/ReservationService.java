@@ -1,6 +1,7 @@
 package raf.edu.rs.reservationService.service;
 
 import io.github.resilience4j.retry.Retry;
+import org.apache.tomcat.jni.Local;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jms.core.JmsTemplate;
@@ -13,10 +14,13 @@ import raf.edu.rs.reservationService.domain.Room;
 import raf.edu.rs.reservationService.dto.MessageDto;
 import raf.edu.rs.reservationService.dto.UserDto;
 import raf.edu.rs.reservationService.exceptions.InsertException;
+import raf.edu.rs.reservationService.exceptions.InvalidDateException;
 import raf.edu.rs.reservationService.exceptions.NotFoundException;
 import raf.edu.rs.reservationService.messageHelper.MessageHelper;
 import raf.edu.rs.reservationService.repository.HotelRepository;
 import raf.edu.rs.reservationService.repository.ReservationRepository;
+
+import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +77,10 @@ public class ReservationService {
                 throw new InsertException("The room is already reserved in that period!");
             }
         }
+
+        if(reservation.getStartDate().isBefore(LocalDate.now()) || reservation.getEndDate().isBefore(LocalDate.now())
+                || reservation.getStartDate().isAfter(reservation.getEndDate()))
+            throw new InvalidDateException();
 
         // retry pattern
         ResponseEntity<Integer> discountResponseEntity =

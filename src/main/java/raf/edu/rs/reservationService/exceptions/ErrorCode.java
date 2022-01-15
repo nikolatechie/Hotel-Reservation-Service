@@ -1,5 +1,5 @@
 package raf.edu.rs.reservationService.exceptions;
 
 public enum ErrorCode {
-    RESOURCE_NOT_FOUND, DUPLICATE
+    RESOURCE_NOT_FOUND, DUPLICATE, INVALID_DATE
 }
