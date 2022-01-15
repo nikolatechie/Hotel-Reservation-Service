@@ -6,13 +6,15 @@ public class MessageDto {
     private String lastname;
     private String hotelName;
     private String email;
+    private String rezStart;
 
-    public MessageDto(String type, String name, String lastname, String email, String hotelName) {
+    public MessageDto(String type, String name, String lastname, String email, String hotelName, String rezStart) {
         this.type = type;
         this.name = name;
         this.lastname = lastname;
         this.email = email;
         this.hotelName = hotelName;
+        this.rezStart = rezStart;
     }
 
     public MessageDto() {}
@@ -55,5 +57,13 @@ public class MessageDto {
 
     public void setHotelName(String hotelName) {
         this.hotelName = hotelName;
+    }
+
+    public String getRezStart() {
+        return rezStart;
+    }
+
+    public void setRezStart(String rezStart) {
+        this.rezStart = rezStart;
     }
 }

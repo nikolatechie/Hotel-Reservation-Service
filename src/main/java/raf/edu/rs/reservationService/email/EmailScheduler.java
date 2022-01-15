@@ -62,7 +62,7 @@ public class EmailScheduler {
                         null, UserDto.class);
 
                 MessageDto messageDto = new MessageDto("reservation_reminder", userDto.getBody().getFirstName(),
-                        userDto.getBody().getLastName(), userDto.getBody().getEmail(), hotel.getName());
+                        userDto.getBody().getLastName(), userDto.getBody().getEmail(), hotel.getName(), reservation.getStartDate().toString());
 
                 String str = messageHelper.createTextMessage(messageDto);
                 jmsTemplate.convertAndSend("send_mail_destination", str);

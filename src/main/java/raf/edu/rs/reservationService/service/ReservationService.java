@@ -166,7 +166,7 @@ public class ReservationService {
                         reservation.getUserId(), HttpMethod.GET, null, UserDto.class);
 
         MessageDto msg = new MessageDto(emailType, userDto.getBody().getFirstName(), userDto.getBody().getLastName(),
-                userDto.getBody().getEmail(), hotel.getName());
+                userDto.getBody().getEmail(), hotel.getName(), "");
 
         String str = messageHelper.createTextMessage(msg);
         jmsTemplate.convertAndSend("send_mail_destination", str);
